@@ -73,11 +73,18 @@ struct XE {
  bool tglRequested=false, tglAcceleratorRequested=false;
  bool tglInactivePorts=false, tglPG1Poll=false, tglClockOrderRequested=false;
  bool tglProgramEnabled=false, tglTrainingLeaseRequested=false;
+ bool tglSkipGPUTicks=false;
  struct { bool available=false; } modDVMTCalcFix;
  int *currentGraphics=nullptr, *currentFramebuffer=nullptr;
  void init();
  void selectProfile(const XELP::Profile &);
 };
+// selectProfile publishes the -wex-skip-gputicks decision on the registry root.
+struct IORegistryEntry {
+ static IORegistryEntry *getRegistryRoot();
+ void setProperty(const char *,bool) {}
+};
+IORegistryEntry *IORegistryEntry::getRegistryRoot(){static IORegistryEntry root;return &root;}
 static XE *callbackXE;
 static bool adlnNativeRCSProfileRequested;
 using kern_return_t = int;
