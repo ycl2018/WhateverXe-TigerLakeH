@@ -24,10 +24,17 @@ struct XE {
  bool adlpDisplaySelected=false,adlpRenderRequested=false,display13FramebufferRequested=false;
  bool tglRequested=false,tglAcceleratorRequested=false,tglInactivePorts=false,tglPG1Poll=false;
  bool tglClockOrderRequested=false,tglTrainingLeaseRequested=false,tglProgramEnabled=false;
+ bool tglSkipGPUTicks=false;
  int *currentFramebuffer=nullptr,*currentGraphics=nullptr;
  struct {bool available=false;}modDVMTCalcFix;
  void selectProfile(const XELP::Profile &);
 };
+// selectProfile publishes the -wex-skip-gputicks decision on the registry root.
+struct IORegistryEntry {
+ static IORegistryEntry *getRegistryRoot();
+ void setProperty(const char *,bool) {}
+};
+IORegistryEntry *IORegistryEntry::getRegistryRoot(){static IORegistryEntry root;return &root;}
 FUNCTION
 int main(){
  const uint32_t mobile[]={0x4626,0x4628,0x462a,0x46a0,0x46a1,0x46a2,0x46b0,0x46b1,0x46b2,0x46c0,0x46c1,0x46c2,0xa720,0xa721,0x46a3,0x46a6,0x46a8,0x46aa,0x46b3,0x46c3,0xa7a0,0xa7a1,0xa7a8,0xa7a9,0xa7aa,0xa7ab,0xa7ac,0xa7ad};

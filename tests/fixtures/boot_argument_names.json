@@ -120,6 +120,9 @@
   "-wex-tgl-prog-off": [
     "-tglprogoff"
   ],
+  "-wex-tgl-edp-keep": [],
+  "-wex-tgl-edp-softsleep": [],
+  "-wex-skip-gputicks": [],
   "-wex-no-host-rps": [
     "-tglnohostrps"
   ],
