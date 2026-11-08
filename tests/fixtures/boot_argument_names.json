@@ -1,5 +1,6 @@
 {
   "-wex-dsi-audit": [],
+  "-wex-dsi-60hz": [],
   "-wex-dsi-adopt": [],
   "-wex-dsi-panel-only": [],
   "-wex-dsi-command-test": [],
@@ -122,7 +123,6 @@
   ],
   "-wex-tgl-edp-keep": [],
   "-wex-tgl-edp-softsleep": [],
-  "-wex-skip-gputicks": [],
   "-wex-no-host-rps": [
     "-tglnohostrps"
   ],
@@ -150,5 +150,6 @@
   "-wex-adlp-load-only": [],
   "-wex-display13-offline": [],
   "-wex-dsi-hdmi-test": [],
-  "-wex-dsi-power-test": []
+  "-wex-dsi-power-test": [],
+  "-wex-skip-gputicks": []
 }
