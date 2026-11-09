@@ -19457,6 +19457,36 @@ void XE::wrapTGLRegisterWrite(void *access, unsigned long reg, uint32_t value) {
 		}
 	}
     comboClockTranslateWrite(access,reg,value,reinterpret_cast<uintptr_t>(__builtin_return_address(0)));
+	// TGL donor backlight rescale (port of rodgod-rr's ADL-S fix in upstream
+	// issues #16/#31, following WhateverGreen's BacklightRegistersFix rule).
+	// The ICL donor drives 0xC8258 duty in its own period domain (observed max
+	// duty 17741 = 0x454D at slider 100%) while the hardware period register
+	// 0xC8254 holds 96000 (0x17700) on TGL laptops: full slider delivered only
+	// 17741/96000 = 18.5% duty, capping maximum brightness. Keep the hardware
+	// period, rescale donor duty writes to it. -wex-blmax overrides the donor
+	// period (default 17777); -wex-blmin sets a floor in hardware PWM units.
+	if (callbackXE->tglActive && !callbackXE->adlsDisplaySelected &&
+		!(callbackXE->display13FramebufferRequested && callbackXE->adlnOutputWiring.panel) &&
+		(reg == 0xC8254 || reg == 0xC8258) && callbackXE->orgTGLRegisterRead) {
+		static uint32_t tglBlHw = 0, tglBlDonor = 0, blmax = 0, blmin = 0;
+		if (!blmax) {
+			if (!PE_parse_boot_argn("-wex-blmax", &blmax, sizeof(blmax)) || !blmax) blmax = 17777;
+			if (!PE_parse_boot_argn("-wex-blmin", &blmin, sizeof(blmin))) blmin = 0;
+		}
+		if (!tglBlHw) tglBlHw = FunctionCast(wrapTGLRegisterRead, callbackXE->orgTGLRegisterRead)(access, 0xC8254);
+		const bool hwOK = tglBlHw && tglBlHw != ~0U;
+		if (reg == 0xC8254) {
+			if (value) tglBlDonor = value;
+			if (hwOK) value = tglBlHw;
+		} else {
+			const uint32_t ref = tglBlDonor ? tglBlDonor : blmax;
+			if (hwOK && ref && ref != tglBlHw) {
+				const uint32_t lo = blmin < tglBlHw ? blmin : 0;
+				const uint64_t v = lo + uint64_t(value) * (tglBlHw - lo) / ref;
+				value = v > tglBlHw ? tglBlHw : uint32_t(v);
+			}
+		}
+	}
 	auto &tx = tglClockOffTransaction;
 	if (callbackXE->tglClockOffCaller && reinterpret_cast<uintptr_t>(__builtin_return_address(0)) == callbackXE->tglClockOffCaller &&
 		reg == tx.clockReg && !(value & 0xF0000000U) &&
