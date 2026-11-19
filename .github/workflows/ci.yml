@@ -99,7 +99,7 @@ jobs:
             gh release create wex-dev \
               --title "Dev build of main" \
               --notes "Rolling RELEASE build of main branch. Re-download the zip to get the latest commit." \
-              ./*.zip SHA256SUMS --clobber
+              ./*.zip SHA256SUMS
           fi
 
   release:
